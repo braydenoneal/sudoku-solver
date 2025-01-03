@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 type Cell = u8;
 type CellBoard = [[Cell; 9]; 9];
 type Note = [bool; 9];
@@ -9,8 +11,8 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(cells: CellBoard) -> Board {
-        Board {
+    pub fn new(cells: CellBoard) -> Self {
+        Self {
             cells,
             notes: [[[false; 9]; 9]; 9],
         }
@@ -66,47 +68,21 @@ impl Board {
     }
 
     fn value_if_one_remaining(&self, row: usize, col: usize) -> Option<(usize, usize, u8)> {
-        // let remaining: Vec<usize> = self.notes[row][col]
-        //     .iter()
-        //     .enumerate()
-        //     .filter(|(_, &value)| value)
-        //     .map(|(index, _)| index + 1)
-        //     .collect();
-        //
-        // match remaining.len() {
-        //     1 => Some((row, col, remaining[0] as u8)),
-        //     _ => None,
-        // }
-
-        let e = self.notes[row][col].iter().enumerate().fold(
-            (0usize, 0usize),
-            |(acc_i, acc_v), (i, &v)| {
-                if v {
-                    (acc_i + 1, i + 1)
+        let remaining = self.notes[row][col].iter().enumerate().fold(
+            (0_usize, 0_usize),
+            |(acc_index, acc_value), (index, &value)| {
+                if value {
+                    (acc_index + 1, index)
                 } else {
-                    (acc_i, acc_v)
+                    (acc_index, acc_value)
                 }
             },
         );
 
-        match e {
-            (1, index) => Some((row, col, index as u8)),
+        match remaining {
+            (1, index) => Some((row, col, (index + 1) as u8)),
             _ => None,
         }
-
-        // let remaining: usize = self.notes[row][col].iter().filter(|&&value| value).count();
-        //
-        // match remaining {
-        //     1 => {
-        //         let value = self.notes[row][col]
-        //             .iter()
-        //             .enumerate()
-        //             .find_map(|(index, &value)| if value { Some(index + 1) } else { None })
-        //             .unwrap();
-        //         Some((row, col, value as u8))
-        //     }
-        //     _ => None,
-        // }
     }
 
     pub fn solve(&mut self) {
@@ -177,8 +153,8 @@ pub struct ExampleBoards {
 
 #[allow(dead_code)]
 impl ExampleBoards {
-    pub fn easy() -> ExampleBoards {
-        ExampleBoards {
+    pub fn easy() -> Self {
+        Self {
             puzzle: [
                 [0, 9, 0, 4, 6, 7, 5, 0, 8],
                 [7, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -204,8 +180,8 @@ impl ExampleBoards {
         }
     }
 
-    pub fn medium() -> ExampleBoards {
-        ExampleBoards {
+    pub fn medium() -> Self {
+        Self {
             puzzle: [
                 [6, 0, 0, 0, 0, 3, 0, 0, 0],
                 [0, 0, 2, 0, 4, 0, 1, 7, 0],
@@ -231,8 +207,8 @@ impl ExampleBoards {
         }
     }
 
-    pub fn test() -> ExampleBoards {
-        ExampleBoards {
+    pub fn test() -> Self {
+        Self {
             puzzle: [
                 [5, 3, 0, 0, 7, 0, 0, 0, 0],
                 [6, 0, 0, 1, 9, 5, 0, 0, 0],
