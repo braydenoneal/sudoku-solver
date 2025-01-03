@@ -5,6 +5,7 @@ type CellBoard = [[Cell; 9]; 9];
 type Note = [bool; 9];
 type NoteBoard = [[Note; 9]; 9];
 
+#[derive(Default)]
 pub struct Board {
     cells: CellBoard,
     notes: NoteBoard,
@@ -18,8 +19,68 @@ impl Board {
         }
     }
 
-    pub fn get_cells(&self) -> CellBoard {
+    pub fn cells(&self) -> CellBoard {
         self.cells
+    }
+
+    #[allow(dead_code)]
+    pub fn print_cells(&self) {
+        for row in self.cells {
+            for cell in row {
+                match cell {
+                    0 => {
+                        print!("_ ")
+                    }
+                    _ => {
+                        print!("{cell} ")
+                    }
+                }
+            }
+
+            println!();
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn print_notes(&self) {
+        for row in self.notes {
+            print!("|");
+
+            for note in row {
+                for (number, &value) in note.iter().enumerate() {
+                    if value {
+                        print!("{n}", n = number + 1);
+                    } else {
+                        print!(" ");
+                    }
+                }
+
+                print!("|");
+            }
+
+            println!();
+        }
+    }
+
+    pub fn solve(&mut self) {
+        loop {
+            self.set_notes();
+
+            let value_if_one_remaining = self
+                .cells
+                .iter()
+                .enumerate()
+                .flat_map(|(r, v)| v.iter().enumerate().map(move |(c, v)| (r, c, v)))
+                .filter(|(_, _, &v)| v == 0)
+                .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
+
+            match value_if_one_remaining {
+                Some((row, col, value)) => {
+                    self.cells[row][col] = value;
+                }
+                None => break,
+            }
+        }
     }
 
     fn check_number(&self, number: usize, row: usize, col: usize) -> bool {
@@ -79,73 +140,15 @@ impl Board {
             },
         );
 
-        match remaining {
-            (1, index) => Some((row, col, (index + 1) as u8)),
-            _ => None,
+        if let (1, index) = remaining {
+            return Some((row, col, index as u8 + 1));
         }
-    }
 
-    pub fn solve(&mut self) {
-        loop {
-            self.set_notes();
-
-            let value_if_one_remaining = self
-                .cells
-                .iter()
-                .enumerate()
-                .flat_map(|(r, v)| v.iter().enumerate().map(move |(c, v)| (r, c, v)))
-                .filter(|(_, _, &v)| v == 0)
-                .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
-
-            match value_if_one_remaining {
-                Some((row, col, value)) => {
-                    self.cells[row][col] = value;
-                }
-                None => break,
-            }
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn print_cells(&self) {
-        for row in self.cells {
-            for cell in row {
-                match cell {
-                    0 => {
-                        print!("_ ")
-                    }
-                    _ => {
-                        print!("{cell} ")
-                    }
-                }
-            }
-
-            println!();
-        }
-    }
-
-    #[allow(dead_code)]
-    pub fn print_notes(&self) {
-        for row in self.notes {
-            print!("|");
-
-            for note in row {
-                for (number, &value) in note.iter().enumerate() {
-                    if value {
-                        print!("{n}", n = number + 1);
-                    } else {
-                        print!(" ");
-                    }
-                }
-
-                print!("|");
-            }
-
-            println!();
-        }
+        None
     }
 }
 
+#[allow(dead_code)]
 pub struct ExampleBoards {
     pub puzzle: CellBoard,
     pub solution: CellBoard,

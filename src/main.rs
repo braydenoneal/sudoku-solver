@@ -12,5 +12,5 @@ fn main() {
     println!();
     board.print_cells();
 
-    assert_eq!(board.get_cells(), example_board.solution);
+    assert_eq!(board.cells(), example_board.solution);
 }
