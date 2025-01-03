@@ -83,8 +83,6 @@ impl Board {
         loop {
             self.set_notes();
 
-            // let mut solved = true;
-
             let value_if_one_remaining = self
                 .cells
                 .iter()
@@ -99,29 +97,6 @@ impl Board {
                 }
                 None => break,
             }
-
-            // 'grid: for row in 0..9 {
-            //     for col in 0..9 {
-            //         if self.cells[row][col] == 0 {
-            //             solved = false;
-            //
-            //             let value_if_one_remaining = self.value_if_one_remaining(row, col);
-            //
-            //             match value_if_one_remaining {
-            //                 Some(value) => {
-            //                     self.cells[row][col] = value;
-            //
-            //                     break 'grid;
-            //                 }
-            //                 None => {}
-            //             }
-            //         }
-            //     }
-            // }
-            //
-            // if solved {
-            //     break;
-            // }
         }
     }
 
