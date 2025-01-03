@@ -66,17 +66,47 @@ impl Board {
     }
 
     fn value_if_one_remaining(&self, row: usize, col: usize) -> Option<(usize, usize, u8)> {
-        let remaining: Vec<usize> = self.notes[row][col]
-            .iter()
-            .enumerate()
-            .filter(|(_, &value)| value)
-            .map(|(index, _)| index + 1)
-            .collect();
+        // let remaining: Vec<usize> = self.notes[row][col]
+        //     .iter()
+        //     .enumerate()
+        //     .filter(|(_, &value)| value)
+        //     .map(|(index, _)| index + 1)
+        //     .collect();
+        //
+        // match remaining.len() {
+        //     1 => Some((row, col, remaining[0] as u8)),
+        //     _ => None,
+        // }
 
-        match remaining.len() {
-            1 => Some((row, col, remaining[0] as u8)),
+        let e = self.notes[row][col].iter().enumerate().fold(
+            (0usize, 0usize),
+            |(acc_i, acc_v), (i, &v)| {
+                if v {
+                    (acc_i + 1, i + 1)
+                } else {
+                    (acc_i, acc_v)
+                }
+            },
+        );
+
+        match e {
+            (1, index) => Some((row, col, index as u8)),
             _ => None,
         }
+
+        // let remaining: usize = self.notes[row][col].iter().filter(|&&value| value).count();
+        //
+        // match remaining {
+        //     1 => {
+        //         let value = self.notes[row][col]
+        //             .iter()
+        //             .enumerate()
+        //             .find_map(|(index, &value)| if value { Some(index + 1) } else { None })
+        //             .unwrap();
+        //         Some((row, col, value as u8))
+        //     }
+        //     _ => None,
+        // }
     }
 
     pub fn solve(&mut self) {
@@ -89,7 +119,7 @@ impl Board {
                 .enumerate()
                 .flat_map(|(r, v)| v.iter().enumerate().map(move |(c, v)| (r, c, v)))
                 .filter(|(_, _, &v)| v == 0)
-                .find_map(|(row, col, _)| self.value_if_one_remaining(row, col));
+                .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
 
             match value_if_one_remaining {
                 Some((row, col, value)) => {
@@ -236,6 +266,6 @@ impl ExampleBoards {
             .filter(|&&number| number != 0)
             .count();
 
-        println!("{given}");
+        println!("Number of given cells: {given}");
     }
 }
