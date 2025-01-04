@@ -2,7 +2,7 @@
 use itertools::iproduct;
 
 type Cell = u8;
-type CellBoard = [[Cell; 9]; 9];
+pub type CellBoard = [[Cell; 9]; 9];
 type Note = [bool; 9];
 type NoteBoard = [[Note; 9]; 9];
 
@@ -187,6 +187,10 @@ pub struct ExampleBoards {
 
 #[allow(dead_code)]
 impl ExampleBoards {
+    pub fn new(puzzle: CellBoard, solution: CellBoard) -> Self {
+        Self { puzzle, solution }
+    }
+
     pub fn print_number_of_given(&self) {
         let given = self
             .puzzle
