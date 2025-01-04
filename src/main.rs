@@ -25,8 +25,9 @@ fn read_csv<P: AsRef<Path>>(filename: P) -> Result<(), Box<dyn Error>> {
     let file = File::open(filename)?;
     let mut rdr = csv::Reader::from_reader(file);
 
-    let mut count = 0;
-    let mut incorrect_count = 0;
+    let mut count = 1;
+    let mut incorrect_counts = Vec::new();
+    let mut total_duration = std::time::Duration::new(0, 0);
 
     for result in rdr.records() {
         let record = result?;
@@ -54,14 +55,24 @@ fn read_csv<P: AsRef<Path>>(filename: P) -> Result<(), Box<dyn Error>> {
         }
 
         let mut board = board::Board::new(example_board.puzzle);
+
+        use std::time::Instant;
+        let now = Instant::now();
+
         board.solve();
+
+        total_duration += now.elapsed();
+
         let eq = std::panic::catch_unwind(|| assert_eq!(board.cells(), example_board.solution));
+
         if eq.is_err() {
-            incorrect_count += 1;
+            incorrect_counts.push(count);
         }
 
+        let average_duration = total_duration / count;
+        println!("Count: {count}, Average: {average_duration:?} Incorrect: {incorrect_counts:?}");
+
         count += 1;
-        println!("Count: {count}, Incorrect: {incorrect_count}");
     }
 
     Ok(())
