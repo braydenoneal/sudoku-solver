@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+use itertools::iproduct;
 
 type Cell = u8;
 type CellBoard = [[Cell; 9]; 9];
@@ -140,11 +141,11 @@ impl Board {
     fn value_if_one_remaining(&self, row: usize, col: usize) -> Option<(usize, usize, u8)> {
         let remaining = self.notes[row][col].iter().enumerate().fold(
             (0_usize, 0_usize),
-            |(acc_index, acc_value), (index, &value)| {
+            |(count, acc_index), (index, &value)| {
                 if value {
-                    (acc_index + 1, index)
+                    (count + 1, index)
                 } else {
-                    (acc_index, acc_value)
+                    (count, acc_index)
                 }
             },
         );
@@ -157,27 +158,20 @@ impl Board {
     }
 
     fn value_if_one_in_subgrid(&self) -> Option<(usize, usize, u8)> {
-        for number in 0..9 {
-            for subgrid_row in 0..3 {
-                for subgrid_col in 0..3 {
-                    let mut count: u8 = 0;
-                    let mut value_row: usize = 0;
-                    let mut value_col: usize = 0;
-
-                    for row in 0..3 {
-                        for col in 0..3 {
-                            if self.notes[subgrid_row * 3 + row][subgrid_col * 3 + col][number] {
-                                count += 1;
-                                value_row = subgrid_row * 3 + row;
-                                value_col = subgrid_col * 3 + col;
-                            }
-                        }
+        for (number, subgrid_row, subgrid_col) in iproduct!(0..9, 0..3, 0..3) {
+            let (count, row, col) = iproduct!(0..3, 0..3).fold(
+                (0_u8, 0_usize, 0_usize),
+                |(count, acc_row, acc_col), (row, col)| {
+                    if self.notes[subgrid_row * 3 + row][subgrid_col * 3 + col][number] {
+                        (count + 1, row, col)
+                    } else {
+                        (count, acc_row, acc_col)
                     }
+                },
+            );
 
-                    if count == 1 {
-                        return Some((value_row, value_col, number as u8 + 1));
-                    }
-                }
+            if count == 1 {
+                return Some((row, col, number as u8 + 1));
             }
         }
 
