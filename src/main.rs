@@ -1,7 +1,7 @@
 mod board;
 
 fn main() {
-    let example_board = board::ExampleBoards::easy();
+    let example_board = board::ExampleBoards::hard();
     example_board.print_number_of_given();
     println!();
 

@@ -74,12 +74,21 @@ impl Board {
                 .filter(|(_, _, &v)| v == 0)
                 .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
 
-            match value_if_one_remaining {
-                Some((row, col, value)) => {
-                    self.cells[row][col] = value;
-                }
-                None => break,
+            if let Some((row, col, value)) = value_if_one_remaining {
+                self.cells[row][col] = value;
+                self.notes[row][col] = Note::default();
+                continue;
             }
+
+            let value_if_one_in_subgrid = self.value_if_one_in_subgrid();
+
+            if let Some((row, col, value)) = value_if_one_in_subgrid {
+                self.cells[row][col] = value;
+                self.notes[row][col] = Note::default();
+                continue;
+            }
+
+            break;
         }
     }
 
@@ -146,6 +155,34 @@ impl Board {
 
         None
     }
+
+    fn value_if_one_in_subgrid(&self) -> Option<(usize, usize, u8)> {
+        for number in 0..9 {
+            for subgrid_row in 0..3 {
+                for subgrid_col in 0..3 {
+                    let mut count: u8 = 0;
+                    let mut value_row: usize = 0;
+                    let mut value_col: usize = 0;
+
+                    for row in 0..3 {
+                        for col in 0..3 {
+                            if self.notes[subgrid_row * 3 + row][subgrid_col * 3 + col][number] {
+                                count += 1;
+                                value_row = subgrid_row * 3 + row;
+                                value_col = subgrid_col * 3 + col;
+                            }
+                        }
+                    }
+
+                    if count == 1 {
+                        return Some((value_row, value_col, number as u8 + 1));
+                    }
+                }
+            }
+        }
+
+        None
+    }
 }
 
 #[allow(dead_code)]
@@ -156,6 +193,17 @@ pub struct ExampleBoards {
 
 #[allow(dead_code)]
 impl ExampleBoards {
+    pub fn print_number_of_given(&self) {
+        let given = self
+            .puzzle
+            .iter()
+            .flat_map(|cells| cells.iter())
+            .filter(|&&number| number != 0)
+            .count();
+
+        println!("Number of given cells: {given}");
+    }
+
     pub fn easy() -> Self {
         Self {
             puzzle: [
@@ -210,6 +258,33 @@ impl ExampleBoards {
         }
     }
 
+    pub fn hard() -> Self {
+        Self {
+            puzzle: [
+                [1, 0, 0, 0, 0, 3, 2, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 5, 1],
+                [0, 0, 0, 0, 1, 0, 7, 0, 0],
+                [0, 1, 0, 6, 0, 2, 0, 9, 4],
+                [0, 9, 0, 8, 0, 0, 0, 0, 7],
+                [0, 7, 2, 0, 0, 0, 1, 0, 3],
+                [0, 3, 0, 0, 0, 4, 9, 0, 0],
+                [0, 8, 0, 0, 0, 0, 4, 0, 0],
+                [4, 0, 9, 0, 5, 0, 0, 8, 2],
+            ],
+            solution: [
+                [1, 5, 8, 7, 6, 3, 2, 4, 9],
+                [3, 4, 7, 9, 2, 8, 6, 5, 1],
+                [9, 2, 6, 4, 1, 5, 7, 3, 8],
+                [5, 1, 3, 6, 7, 2, 8, 9, 4],
+                [6, 9, 4, 8, 3, 1, 5, 2, 7],
+                [8, 7, 2, 5, 4, 9, 1, 6, 3],
+                [7, 3, 5, 2, 8, 4, 9, 1, 6],
+                [2, 8, 1, 3, 9, 6, 4, 7, 5],
+                [4, 6, 9, 1, 5, 7, 3, 8, 2],
+            ],
+        }
+    }
+
     pub fn test() -> Self {
         Self {
             puzzle: [
@@ -235,16 +310,5 @@ impl ExampleBoards {
                 [3, 4, 5, 2, 8, 6, 1, 7, 9],
             ],
         }
-    }
-
-    pub fn print_number_of_given(&self) {
-        let given = self
-            .puzzle
-            .iter()
-            .flat_map(|cells| cells.iter())
-            .filter(|&&number| number != 0)
-            .count();
-
-        println!("Number of given cells: {given}");
     }
 }
