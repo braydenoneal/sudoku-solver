@@ -1,18 +1,18 @@
 mod board;
 
 fn main() {
-    let example_board = board::ExampleBoards::hard();
-    example_board.print_number_of_given();
-    println!();
-
-    let mut board = board::Board::new(example_board.puzzle);
-
-    board.print_cells();
-    board.solve();
-    println!();
-    board.print_cells();
-
-    assert_eq!(board.cells(), example_board.solution);
+    // let example_board = board::ExampleBoards::hard();
+    // example_board.print_number_of_given();
+    // println!();
+    //
+    // let mut board = board::Board::new(example_board.puzzle);
+    //
+    // board.print_cells();
+    // board.solve();
+    // println!();
+    // board.print_cells();
+    //
+    // assert_eq!(board.cells(), example_board.solution);
 
     read_csv("sudoku.csv").unwrap();
 }
@@ -24,6 +24,9 @@ use std::path::Path;
 fn read_csv<P: AsRef<Path>>(filename: P) -> Result<(), Box<dyn Error>> {
     let file = File::open(filename)?;
     let mut rdr = csv::Reader::from_reader(file);
+
+    let mut count = 0;
+    let mut incorrect_count = 0;
 
     for result in rdr.records() {
         let record = result?;
@@ -49,6 +52,16 @@ fn read_csv<P: AsRef<Path>>(filename: P) -> Result<(), Box<dyn Error>> {
                     }
                 });
         }
+
+        let mut board = board::Board::new(example_board.puzzle);
+        board.solve();
+        let eq = std::panic::catch_unwind(|| assert_eq!(board.cells(), example_board.solution));
+        if eq.is_err() {
+            incorrect_count += 1;
+        }
+
+        count += 1;
+        println!("Count: {count}, Incorrect: {incorrect_count}");
     }
 
     Ok(())
