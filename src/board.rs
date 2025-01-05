@@ -67,15 +67,17 @@ impl Board {
         loop {
             self.set_notes();
 
-            let value_if_one_remaining = self
-                .cells
-                .iter()
-                .enumerate()
-                .flat_map(|(r, v)| v.iter().enumerate().map(move |(c, v)| (r, c, v)))
-                .filter(|(_, _, &v)| v == 0)
-                .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
+            let value_if_one_remaining2 = self.value_if_one_remaining2();
 
-            if let Some((row, col, value)) = value_if_one_remaining {
+            // let value_if_one_remaining = self
+            //     .cells
+            //     .iter()
+            //     .enumerate()
+            //     .flat_map(|(r, v)| v.iter().enumerate().map(move |(c, v)| (r, c, v)))
+            //     .filter(|(_, _, &v)| v == 0)
+            //     .find_map(|(r, c, _)| self.value_if_one_remaining(r, c));
+
+            if let Some((row, col, value)) = value_if_one_remaining2 {
                 self.cells[row][col] = value;
                 self.notes[row][col] = Note::default();
                 continue;
@@ -138,6 +140,43 @@ impl Board {
         }
     }
 
+    fn value_if_one_remaining2(&self) -> Option<(usize, usize, u8)> {
+        for (row, col) in iproduct!(0..9, 0..9) {
+            if self.cells[row][col] != 0 {
+                continue;
+            }
+
+            // let (count, number) = (0..9).fold((0_usize, 0_usize), |(count, acc_index), index| {
+            //     if self.notes[row][col][index] {
+            //         (count + 1, index)
+            //     } else {
+            //         (count, acc_index)
+            //     }
+            // });
+            //
+            // if count == 1 {
+            //     return Some((row, col, number as u8 + 1));
+            // }
+
+            let remaining = self.notes[row][col].iter().enumerate().fold(
+                (0_usize, 0_usize),
+                |(count, acc_index), (index, &value)| {
+                    if value {
+                        (count + 1, index)
+                    } else {
+                        (count, acc_index)
+                    }
+                },
+            );
+
+            if let (1, index) = remaining {
+                return Some((row, col, index as u8 + 1));
+            }
+        }
+
+        None
+    }
+
     fn value_if_one_remaining(&self, row: usize, col: usize) -> Option<(usize, usize, u8)> {
         let remaining = self.notes[row][col].iter().enumerate().fold(
             (0_usize, 0_usize),
@@ -177,6 +216,8 @@ impl Board {
 
         None
     }
+
+    // fn value_if_one_in_row(&self) -> Option<(usize, usize, u8)> {}
 }
 
 #[allow(dead_code)]
@@ -191,14 +232,16 @@ impl ExampleBoards {
         Self { puzzle, solution }
     }
 
-    pub fn print_number_of_given(&self) {
-        let given = self
-            .puzzle
+    pub fn number_of_given(&self) -> usize {
+        self.puzzle
             .iter()
             .flat_map(|cells| cells.iter())
             .filter(|&&number| number != 0)
-            .count();
+            .count()
+    }
 
+    pub fn print_number_of_given(&self) {
+        let given = self.number_of_given();
         println!("Number of given cells: {given}");
     }
 
@@ -306,6 +349,33 @@ impl ExampleBoards {
                 [9, 4, 3, 2, 1, 5, 8, 7, 6],
                 [8, 5, 1, 7, 6, 3, 2, 4, 9],
                 [6, 7, 2, 9, 8, 4, 1, 5, 3],
+            ],
+        }
+    }
+
+    pub fn kaggle_fail_2() -> Self {
+        Self {
+            puzzle: [
+                [5, 1, 0, 0, 7, 0, 0, 0, 0],
+                [0, 3, 9, 0, 0, 4, 5, 0, 7],
+                [0, 6, 0, 8, 0, 0, 0, 2, 1],
+                [0, 7, 3, 6, 5, 9, 0, 8, 0],
+                [4, 0, 0, 2, 3, 0, 9, 0, 0],
+                [0, 0, 6, 0, 8, 0, 7, 0, 0],
+                [0, 0, 0, 9, 1, 2, 6, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 3],
+                [0, 0, 5, 0, 0, 0, 4, 9, 0],
+            ],
+            solution: [
+                [5, 1, 2, 3, 7, 6, 8, 4, 9],
+                [8, 3, 9, 1, 2, 4, 5, 6, 7],
+                [7, 6, 4, 8, 9, 5, 3, 2, 1],
+                [2, 7, 3, 6, 5, 9, 1, 8, 4],
+                [4, 8, 1, 2, 3, 7, 9, 5, 6],
+                [9, 5, 6, 4, 8, 1, 7, 3, 2],
+                [3, 4, 8, 9, 1, 2, 6, 7, 5],
+                [6, 9, 7, 5, 4, 8, 2, 1, 3],
+                [1, 2, 5, 7, 6, 3, 4, 9, 8],
             ],
         }
     }

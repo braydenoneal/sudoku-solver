@@ -1,7 +1,7 @@
 mod board;
 
 fn main() {
-    // let example_board = board::ExampleBoards::hard();
+    // let example_board = board::ExampleBoards::easy();
     // example_board.print_number_of_given();
     // println!();
     //
@@ -70,6 +70,7 @@ fn read_csv<P: AsRef<Path>>(filename: P) -> Result<(), Box<dyn Error>> {
         }
 
         let average_duration = total_duration / count;
+
         println!("Count: {count}, Average: {average_duration:?} Incorrect: {incorrect_counts:?}");
 
         count += 1;
