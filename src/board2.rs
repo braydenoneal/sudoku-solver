@@ -81,25 +81,6 @@ impl Board {
     }
 
     fn value_if_one_remaining(&self) -> Option<(usize, u8)> {
-        // for number in 0..9 {
-        //     let (count, index) = self
-        //         .cells
-        //         .iter()
-        //         .enumerate()
-        //         .filter(|(_, cell)| cell.value != 0)
-        //         .fold((0_u8, 0_usize), |(count, index), (cell_index, cell)| {
-        //             if cell.note[7] {
-        //                 (count + 1, cell_index)
-        //             } else {
-        //                 (count, index)
-        //             }
-        //         });
-        //
-        //     if count == 1 {
-        //         return Some((index, number as u8 + 1));
-        //     }
-        // }
-
         for index in 0..self.cells.len() {
             if self.cells[index].value != 0 {
                 continue;
