@@ -146,18 +146,6 @@ impl Board {
                 continue;
             }
 
-            // let (count, number) = (0..9).fold((0_usize, 0_usize), |(count, acc_index), index| {
-            //     if self.notes[row][col][index] {
-            //         (count + 1, index)
-            //     } else {
-            //         (count, acc_index)
-            //     }
-            // });
-            //
-            // if count == 1 {
-            //     return Some((row, col, number as u8 + 1));
-            // }
-
             let remaining = self.notes[row][col].iter().enumerate().fold(
                 (0_usize, 0_usize),
                 |(count, acc_index), (index, &value)| {
