@@ -96,16 +96,17 @@ impl Board {
     }
 
     fn check_number(&self, number: usize, row: usize, col: usize) -> bool {
-        for cell in self.cells[row] {
-            if cell == number as u8 {
-                return false;
-            }
+        if self.cells[row].contains(&(number as Cell)) {
+            return false;
         }
 
-        for row in self.cells {
-            if row[col] == number as u8 {
-                return false;
-            }
+        if self
+            .cells
+            .iter()
+            .map(|row| row[col])
+            .any(|cell| cell == number as Cell)
+        {
+            return false;
         }
 
         let col = col / 3;
@@ -204,8 +205,6 @@ impl Board {
 
         None
     }
-
-    // fn value_if_one_in_row(&self) -> Option<(usize, usize, u8)> {}
 }
 
 #[allow(dead_code)]

@@ -180,9 +180,55 @@ impl Board {
         None
     }
 
+    fn value_if_aligned_pair(&mut self) -> Option<()> {
+        for subgrid_row in 0..3 {
+            for subgrid_col in 0..3 {
+                let mut pairs: Vec<(usize, usize, usize)> = Vec::new();
+
+                for row in 0..3 {
+                    for col in 0..3 {
+                        let index = (subgrid_row * 3 + row) * 9 + (subgrid_col * 3 + col);
+                        let mut numbers: Vec<usize> = Vec::new();
+
+                        for number in 0..9 {
+                            if self.cells[index].note[number] {
+                                numbers.push(number);
+                            }
+                        }
+
+                        if numbers.len() == 2 {
+                            pairs.push((index, numbers[0], numbers[1]));
+                        }
+                    }
+                }
+
+                if pairs.len() == 2 {
+                    if pairs[0].1 == pairs[1].1 && pairs[0].2 == pairs[1].2 {
+                        for row in 0..3 {
+                            for col in 0..3 {
+                                let index = (subgrid_row * 3 + row) * 9 + (subgrid_col * 3 + col);
+
+                                if index != pairs[0].0 && index != pairs[1].0 {
+                                    self.cells[index].note[pairs[0].1] = false;
+                                    self.cells[index].note[pairs[0].2] = false;
+                                }
+                            }
+                        }
+
+                        return Some(());
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
     pub fn solve(&mut self) {
         loop {
             self.set_notes();
+
+            self.value_if_aligned_pair();
 
             let remaining = self.value_if_one_remaining();
 

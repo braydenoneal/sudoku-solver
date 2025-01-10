@@ -1,5 +1,6 @@
 mod board;
 mod board2;
+mod board_dfs;
 
 fn main() {
     // let example_board = board::ExampleBoards::easy();
@@ -15,9 +16,9 @@ fn main() {
     //
     // assert_eq!(board.cells(), example_board.solution);
 
-    // read_csv("sudoku.csv").unwrap();
+    read_csv("sudoku.csv").unwrap();
     // read_csv2("sudoku.csv").unwrap();
-    read_csv3("sudoku-3m.csv").unwrap();
+    // read_csv3("sudoku-3m.csv").unwrap();
 }
 
 use std::error::Error;
